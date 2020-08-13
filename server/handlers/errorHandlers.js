@@ -1,16 +1,18 @@
 // Catch errors
 
-exports.catchError = (fn) => {
-	return (req, res, next) => {
-		fn(req, res, next).catch(err => {
-			if (typeof err === 'string') {
-				res.status(400).json({ message: err });
-			}
-			else {
-				next(err);
-			}
-		})
-	};
+exports.catchErrors = (fn) => {
+  return function (req, res, next) {
+    fn(req, res, next).catch((err) => {
+      //Validation Errors
+      if (typeof err === "string") {
+        res.status(400).json({
+          message: err,
+        });
+      } else {
+        next(err);
+      }
+    });
+  };
 };
 
 // MongoDB Validation Error Handler

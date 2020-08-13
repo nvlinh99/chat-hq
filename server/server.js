@@ -10,7 +10,8 @@ mongoose
 .connect(process.env.DB_URL, { 
     useUnifiedTopology: true, 
     useNewUrlParser: true,
-    useFindAndModify: false,
+		useFindAndModify: false,
+		useCreateIndex: true,
 })
 .then(() => console.log('DB Connected!'))
 .catch(err => {
