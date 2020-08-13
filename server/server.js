@@ -15,6 +15,11 @@ mongoose
 .then(() => console.log('DB Connected!'))
 .catch(err => {
     console.log(`DB Connection Error: ${err.message}`);
-}); 
+});
+
+// Call in models 
+require('./models/user');
+require('./models/room');
+require('./models/message');
 
 app.listen(PORT, () => {console.log(`Server is listening on port ${PORT}`);});
