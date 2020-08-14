@@ -1,8 +1,6 @@
-
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const asyncHandler = require('express-async-handler');
-const mongoose = require('mongoose');
 
 const AppError = require('../utils/appError');
 const passwordValidator = require('../utils/passwordValidator');
@@ -53,73 +51,74 @@ exports.authorize = asyncHandler(async (req, res, next) => {
   next();
 });
 
-exports.register = asyncHandler(async(req, res, next) => {
-	const { name, email, password } = req.body;
-	const emailRegex = /@gmail.com|@yahoo.com|@live.com|@outlook.com/;
-	const passwordRegex = /^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/gm;
+exports.register = asyncHandler(async (req, res, next) => {
+  const { name, email, password } = req.body;
+  const emailRegex = /@gmail.com|@yahoo.com|@live.com|@outlook.com/;
+  const passwordRegex = /^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/gm;
 
-	const validEmail = emailRegex.test(email);
-	const validPassword = passwordRegex.exec(password);
+  const validEmail = emailRegex.test(email);
+  const validPassword = passwordRegex.exec(password);
 
-	if (!validEmail) {
+  if (!validEmail) {
     return next(new AppError('Email is invalid!', 400));
-	}
-	
-	if (!validPassword) {
+  }
+
+  if (!validPassword) {
     return next(
       new AppError(
         'Password must be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.',
         400
       )
     );
-	}
+  }
 
-	const userExist = await User.findOne({ email: email }).exec();
-	if(userExist) {
-		return next(new AppError('User is already existed.', 400));
-	}
+  const userExist = await User.findOne({ email: email }).exec();
+  if (userExist) {
+    return next(new AppError('User is already existed.', 400));
+  }
 
-	const user = new User({
+  const user = new User({
     name,
     email: email.trim().toLowerCase(),
     password: await passwordValidator.createHashedPassword(password),
-	});
-	
-	await user.save();
+  });
 
-	// Create login token and send to client
+  await user.save();
+
+  // Create login token and send to client
   const token = signToken('customer', user._id);
 
   return res.status(201).json({
-		status: 'success',
-		message: "User [" + name + "] registered successfully!",
+    status: 'success',
+    message: `User [${name}] registered successfully!`,
     token,
   });
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
-	const { email, password } = req.body;
+  const { email, password } = req.body;
 
-	if (!email || !password) {
-    return next(
-      new AppError('Please provide email and password!', 400)
-    );
-	}
-	
-	const user = await User.findOne({ 
-		email, 
-	});
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password!', 400));
+  }
 
-	if (!user || !(await passwordValidator.verifyHashedPassword(password, user.password))) {
+  const user = await User.findOne({
+    email,
+  });
+
+  if (
+    !user ||
+    !(await passwordValidator.verifyHashedPassword(password, user.password))
+  ) {
     return next(new AppError('Incorrect email or password', 400));
   }
 
-	// Create login token and send to client
+  // Create login token and send to client
   const token = signToken('user', user._id);
 
-	return res.status(200).json({
-		status: 'success',
-		message: "User logged in successfully!",
+  return res.status(200).json({
+    status: 'success',
+    message: 'User logged in successfully!',
     token,
   });
 });
