@@ -1,15 +1,61 @@
+
+const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
-const sha256 = require("js-sha256");
-const jwt = require("jwt-then");
-
-const User = require('../models/user');
 
 const AppError = require('../utils/appError');
+const passwordValidator = require('../utils/passwordValidator');
+const User = require('../models/user');
+
+const signToken = (type, id) => {
+  return jwt.sign({ type, id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+exports.authorize = asyncHandler(async (req, res, next) => {
+  // Get token
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer ')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  } else {
+    return next(
+      new AppError('You are not logged in! Please log in to get access.', 401)
+    );
+  }
+
+  // Verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // Check user exists
+  let currentUser = null;
+  switch (decoded.type) {
+    case 'user':
+      currentUser = await User.findOne({ where: { email: decoded.email } });
+      break;
+    default:
+  }
+
+  if (!currentUser) {
+    return next(
+      new AppError(
+        'The user belonging to this token does no longer exists.',
+        401
+      )
+    );
+  }
+  // GRANT ACCESS
+  req.user = currentUser;
+  next();
+});
 
 exports.register = asyncHandler(async(req, res, next) => {
 	const { name, email, password } = req.body;
-	const emailRegex = /[@gmail.com|@yahoo.com|@live.com|@outlook.com]$/;
+	const emailRegex = /@gmail.com|@yahoo.com|@live.com|@outlook.com/;
 	const passwordRegex = /^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/gm;
 
 	const validEmail = emailRegex.test(email);
@@ -27,24 +73,28 @@ exports.register = asyncHandler(async(req, res, next) => {
       )
     );
 	}
-	
-	const userExist = User.findOne({ email });
+
+	const userExist = await User.findOne({ email: email }).exec();
 	if(userExist) {
 		return next(new AppError('User is already existed.', 400));
 	}
 
 	const user = new User({
     name,
-    email,
-    password: sha256(password + process.env.SALT),
+    email: email.trim().toLowerCase(),
+    password: await passwordValidator.createHashedPassword(password),
 	});
 	
 	await user.save();
 
-	return res.status(200).json({
+	// Create login token and send to client
+  const token = signToken('customer', user._id);
+
+  return res.status(201).json({
 		status: 'success',
 		message: "User [" + name + "] registered successfully!",
-	})
+    token,
+  });
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
@@ -56,16 +106,16 @@ exports.login = asyncHandler(async (req, res, next) => {
     );
 	}
 	
-	const user = User.findOne({ 
+	const user = await User.findOne({ 
 		email, 
-		password: sha256(password + process.env.SALT), 
 	});
 
-	if(!user) {
-		return next(new AppError('Incorrect email or password', 401));
-	}
+	if (!user || !(await passwordValidator.verifyHashedPassword(password, user.password))) {
+    return next(new AppError('Incorrect email or password', 400));
+  }
 
-	const token = await jwt.sign({ id: user.id }, process.env.SECRET_KEY);
+	// Create login token and send to client
+  const token = signToken('user', user._id);
 
 	return res.status(200).json({
 		status: 'success',

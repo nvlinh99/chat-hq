@@ -1,59 +1,74 @@
-// Catch errors
+const AppError = require('../utils/appError');
 
-exports.catchErrors = (fn) => {
-  return function (req, res, next) {
-    fn(req, res, next).catch((err) => {
-      //Validation Errors
-      if (typeof err === "string") {
-        res.status(400).json({
-          message: err,
-        });
-      } else {
-        next(err);
-      }
-    });
-  };
+// FOR HANDLE ERROR
+const handleUniqueConstraintError = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+
+  const message = errors.join('/');
+  return new AppError(message, 400);
 };
 
-// MongoDB Validation Error Handler
+const handleValidationError = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
 
-exports.mongooseErrors = (err, req, res, next) => {
-	if (!err.errors) {
-		return next(err);
-	}
+  const message = `${errors.join('/')}`;
+  return new AppError(message, 400);
+};
 
-  const errorKeys = Object.keys(err.errors);
-  let message = "";
-	errorKeys.forEach((key) => (message += err.errors[key].message + ", "));
+const handleJWTError = () =>
+  new AppError('Invalid token. Please log in again!', 401);
 
-  message = message.substr(0, message.length - 2);
+const handleJWTExpiredError = () =>
+  new AppError('Your token has expired. Please log in again!', 401);
 
-  res.status(400).json({
-    message,
+// FOR RESPONSE
+const resErrorDevelopment = (err, res) => {
+  console.log('ERROR!!!', err);
+
+  return res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+    stack: err.stack,
   });
-}; 
-
-//Development Error Handles 
-exports.devErrors = (err, req, res, next) => {
-	err.stack = err.stack || "";
-	const errDetails = {
-		message: err.message,
-		status: err.status,
-		stack: err.stack,
-	};
-	res.status( err.status || 500).json(errDetails);
 };
 
-// Production Error Handles
-exports.productionErrors = (err, req, res, next) => {
-	res.status(err.status || 500).json({
-		error: "Internal Server Error",
-	});
+const resErrorProduction = (err, res) => {
+  if (err.isOperational) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+    });
+  }
+
+  console.log('ERROR 💥', err);
+  return res.status(500).json({
+    status: 'error',
+    message: 'Something went wrong!',
+  });
 };
 
-// Page Error
-exports.notFound = (req, res, next) => {
-	res.status(404).json({
-		message: "Resource not found",
-	});
-}
+module.exports = (err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  if (process.env.NODE_ENV === 'development') {
+    resErrorDevelopment(err, res);
+  } else if (process.env.NODE_ENV === 'production') {
+    let error = { ...err };
+    error.message = err.message;
+
+    if (error.name === 'SequelizeUniqueConstraintError')
+      error = handleUniqueConstraintError(error);
+    if (error.name === 'SequelizeValidationError')
+      error = handleValidationError(error);
+
+    if (error.name === 'JsonWebTokenError') error = handleJWTError();
+    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+
+    resErrorProduction(error, res);
+  } else {
+    return res
+      .status(500)
+      .json({ message: 'Missing environment!', error: err });
+  }
+};
