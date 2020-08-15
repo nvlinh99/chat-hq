@@ -16,7 +16,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   const emailRegex = /@gmail.com|@yahoo.com|@live.com|@outlook.com/;
   const passwordRegex = /^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/gm;
 
-  const validEmail = emailRegex.test(email);
+  const validEmail = emailRegex.exec(email);
   const validPassword = passwordRegex.exec(password);
 
   if (!validEmail) {
@@ -46,7 +46,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   await user.save();
 
   // Create login token and send to client
-  const token = signToken('customer', user._id);
+  const token = signToken('customer', user.id);
 
   return res.status(201).json({
     status: 'success',
@@ -74,7 +74,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   }
 
   // Create login token and send to client
-  const token = signToken('user', user._id);
+  const token = signToken('user', user.id);
 
   return res.status(200).json({
     status: 'success',

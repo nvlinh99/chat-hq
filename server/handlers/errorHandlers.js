@@ -57,10 +57,9 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     error.message = err.message;
 
-    if (error.name === 'SequelizeUniqueConstraintError')
+    if (error.name === 'UniqueConstraintError')
       error = handleUniqueConstraintError(error);
-    if (error.name === 'SequelizeValidationError')
-      error = handleValidationError(error);
+    if (error.name === 'ValidationError') error = handleValidationError(error);
 
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();

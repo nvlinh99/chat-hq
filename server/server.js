@@ -1,3 +1,4 @@
+/* eslint-disable */
 require('dotenv').config();
 const mongoose = require('mongoose');
 
@@ -12,23 +13,25 @@ process.on('uncaughtException', (err) => {
 });
 
 mongoose
-.connect(process.env.DB_URL, { 
-    useUnifiedTopology: true, 
+  .connect(process.env.DB_URL, {
+    useUnifiedTopology: true,
     useNewUrlParser: true,
-		useFindAndModify: false,
-		useCreateIndex: true,
-})
-.then(() => console.log('DB Connected!'))
-.catch(err => {
+    useFindAndModify: false,
+    useCreateIndex: true,
+  })
+  .then(() => console.log('DB Connected!'))
+  .catch((err) => {
     console.log(`DB Connection Error: ${err.message}`);
-});
+  });
 
-// Call in models 
+// Call in models
 require('./models/user');
-require('./models/room');
+require('./models/chatRoom');
 require('./models/message');
 
-app.listen(PORT, () => {console.log(`Server is listening on port ${PORT}`);});
+const server = app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
 
 process.on('unhandledRejection', (err) => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');

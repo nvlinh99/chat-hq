@@ -6,10 +6,11 @@ const GlobalAppError = require('./handlers/errorHandlers');
 const AppError = require('./utils/appError');
 
 const userRoute = require('./routes/user.route');
+const chatRoomRoute = require('./routes/chatRoom.route');
 
 // Start express app
 const app = express();
-app.enable('trust proxy')
+app.enable('trust proxy');
 
 // Implement cors
 app.use(cors());
@@ -30,6 +31,7 @@ app.get('/', async (req, res) => {
 
 // Routes
 app.use('/user', userRoute);
+app.use('/chatroom', chatRoomRoute);
 
 // Ignore favicon
 app.get('/favicon.ico', (req, res) => res.status(204));
