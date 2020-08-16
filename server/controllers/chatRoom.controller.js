@@ -28,3 +28,10 @@ exports.createChatRoom = asyncHandler(async (req, res, next) => {
     message: 'Chatroom created!',
   });
 });
+
+exports.getAllChatroom = asyncHandler(async (req, res, next) => {
+  const chatroom = await ChatRoom.find().exec();
+  return res.json({
+    items: chatroom,
+  });
+});
