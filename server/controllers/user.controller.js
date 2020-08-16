@@ -19,6 +19,10 @@ exports.register = asyncHandler(async (req, res, next) => {
   const validEmail = emailRegex.exec(email);
   const validPassword = passwordRegex.exec(password);
 
+  if (!name) {
+    return next(new AppError('Name is required', 400));
+  }
+
   if (!validEmail) {
     return next(new AppError('Email is invalid!', 400));
   }
