@@ -86,3 +86,8 @@ button {
   padding: 0.25rem 1rem;
   border-radius: 2px;
 }
+
+a {
+  text-decoration: none;
+  color: #333;
+}

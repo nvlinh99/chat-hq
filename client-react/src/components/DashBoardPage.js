@@ -1,6 +1,29 @@
-import React from 'react'
+import React from 'react';
+import axios from 'axios';
+import { Link } from "react-router-dom";
 
-export default function DashBoardPage() {
+const DashBoardPage = (props) => {
+	const [chatRooms, setChatRooms] = React.useState([]);
+	const getChatRooms = () => {
+    axios
+      .get("http://localhost:8000/chatroom", {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("CC_token"),
+        },
+      })
+      .then((res) => {
+        setChatRooms(res.data.items);
+      })
+      .catch((err) => {
+        setTimeout(getChatRooms, 3000);
+      });
+  };
+
+	React.useEffect(() => {
+    getChatRooms();
+    // eslint-disable-next-line
+  }, []);
+	console.log(chatRooms)
 	return (
     <div className="card">
       <div className="cardHeader">Chat rooms</div>
@@ -17,19 +40,16 @@ export default function DashBoardPage() {
       </div>
       <button>Create chat room</button>
       <div className="chatRooms">
-        <div className="chatRoom">
-          <div>PHP Room</div>
-          <div className="join">Join</div>
-        </div>
-        <div className="chatRoom">
-          <div>NodeJs Room</div>
-          <div className="join">Join</div>
-        </div>
-        <div className="chatRoom">
-          <div>Java Room</div>
-          <div className="join">Join</div>
-        </div>
+        {chatRooms.map((chatroom) => (
+          <div key={chatroom._id} className="chatRoom">
+            <div>{chatroom.name}</div>
+            <Link to={"/chatroom/" + chatroom._id}>
+              <div className="join">Join</div>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+export default DashBoardPage;

@@ -4,6 +4,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import DashBoardPage from './components/DashBoardPage';
 import IndexPage from './components/IndexPage';
+import ChatroomPage from './components/ChatroomPage';
 
 function App() {
   return <BrowserRouter>
@@ -12,6 +13,7 @@ function App() {
 			<Route path="/login" component={LoginPage} exact/>
 			<Route path="/register" component={RegisterPage} exact/>
 			<Route path="/dashboard" component={DashBoardPage} exact/>
+			<Route path="/chatroom/:id" component={ChatroomPage} exact/>
 		</Switch>
 	</BrowserRouter>
 }

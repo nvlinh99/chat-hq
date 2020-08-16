@@ -2,7 +2,7 @@ import React from 'react'
 
 const IndexPage = (props) => {
 	React.useEffect(() => {
-		const token = localStorage.getItem("CC_Token");
+		const token = localStorage.getItem("CC_token");
 		if(!token) {
 			props.history.push("/login");
 		}
