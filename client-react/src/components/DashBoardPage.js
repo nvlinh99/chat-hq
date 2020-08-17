@@ -23,7 +23,6 @@ const DashBoardPage = (props) => {
     getChatRooms();
     // eslint-disable-next-line
   }, []);
-	console.log(chatRooms)
 	return (
     <div className="card">
       <div className="cardHeader">Chat rooms</div>

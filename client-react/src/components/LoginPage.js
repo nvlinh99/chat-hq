@@ -1,5 +1,7 @@
 import React from 'react'
 import axios from 'axios'
+import { withRouter } from "react-router-dom";
+
 import makeToast from "../Toaster"
 
 const loginPage = (props) => {
@@ -18,6 +20,7 @@ const loginPage = (props) => {
 			makeToast("success", res.data.message);
 			localStorage.setItem("CC_token", res.data.token);
 			props.history.push("/dashboard");
+			props.setupSocket();
 		})
 		.catch((err) => {
 			if (
@@ -59,4 +62,4 @@ const loginPage = (props) => {
 	);
 }
 
-export default loginPage
+export default withRouter(loginPage);
