@@ -1,10 +1,8 @@
 /* eslint-disable */
 require('dotenv').config();
 const mongoose = require('mongoose');
-// const io = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
-const asyncHandler = require('express-async-handler');
 
 const app = require('./app');
 
@@ -40,9 +38,6 @@ const server = app.listen(PORT, () => {
 const io = require('socket.io')(server);
 const Message = require('./models/message');
 const User = require('./models/user');
-
-// const Message = mongoose.model("Message");
-// const User = mongoose.model("User");
 
 io.use(async (socket, next) => {
   try {

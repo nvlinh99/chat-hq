@@ -22,6 +22,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('../client-react/build'));
+}
+
 // ROUTES
 app.get('/', async (req, res) => {
   res.status(200).json({
