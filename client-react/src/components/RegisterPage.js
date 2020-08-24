@@ -1,6 +1,6 @@
-import React from 'react'
-import axios from 'axios'
+import React from 'react';
 import makeToast from "../Toaster";
+import api from '../utils/config';
 
 const registerPage = (props) => {
 	const nameRef = React.createRef();
@@ -12,7 +12,7 @@ const registerPage = (props) => {
 		const email = emailRef.current.value;
 		const password = passwordRef.current.value;
 
-		axios.post("http://localhost:8000/user/register", {
+		api.post(`/user/register`, {
 			name,
 			email, 
 			password 
@@ -66,6 +66,9 @@ const registerPage = (props) => {
 				/>
 			</div>
 			<button onClick={registerUser}>Register</button>
+			<p className="btnDirect">
+				<a href="/login"> Already have account? </a>
+			</p>
 		</div>
 	</div>
 	);

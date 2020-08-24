@@ -7,6 +7,7 @@ import IndexPage from './components/IndexPage';
 import ChatroomPage from './components/ChatroomPage';
 import io from "socket.io-client";
 import makeToast from "./Toaster";
+require('dotenv').config('.././.env')
 
 function App() {
 	const [socket, setSocket] = React.useState(null);
@@ -14,7 +15,7 @@ function App() {
 	const setupSocket = () => {
 		const token = localStorage.getItem("CC_token");
 		if (token && !socket) {
-			const newSocket = io("http://localhost:8000", {
+			const newSocket = io(process.env.REACT_APP_URL_API, {
         query: {
           token: localStorage.getItem("CC_token"),
         },

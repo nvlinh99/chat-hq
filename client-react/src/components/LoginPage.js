@@ -1,8 +1,8 @@
-import React from 'react'
-import axios from 'axios'
+import React from 'react';
 import { withRouter } from "react-router-dom";
 
-import makeToast from "../Toaster"
+import makeToast from "../Toaster";
+import api from '../utils/config';
 
 const loginPage = (props) => {
 	const emailRef = React.createRef(); 
@@ -12,7 +12,7 @@ const loginPage = (props) => {
 		const email = emailRef.current.value;
 		const password = passwordRef.current.value;
 
-		axios.post("http://localhost:8000/user/login", {
+		api.post(`/user/login`, {
 			email, 
 			password
 		})
@@ -57,6 +57,9 @@ const loginPage = (props) => {
 				/>
 			</div>
 			<button onClick={loginUser}>Login</button>
+			<p className="btnDirect">
+				<a href="/register"> Don't have account? </a>
+			</p>
 		</div>
 	</div>
 	);

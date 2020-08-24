@@ -1,12 +1,12 @@
 import React from 'react';
-import axios from 'axios';
 import { Link } from "react-router-dom";
+import api from '../utils/config';
 
 const DashBoardPage = (props) => {
 	const [chatRooms, setChatRooms] = React.useState([]);
 	const getChatRooms = () => {
-    axios
-      .get("http://localhost:8000/chatroom", {
+    api
+      .get(`/chatroom`, {
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem("CC_token"),
         },
