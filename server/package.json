@@ -5,9 +5,6 @@
   "main": "server.js",
   "scripts": {
 		"start": "node server.js",
-		"build": "cd client-react && npm run build",
-		"install-client": "cd client-react && npm install",
-		"heroku-postbuild": "npm run install-client && npm run build",
     "dev": "nodemon server.js",
     "debug": "ndb server.js"
   },
