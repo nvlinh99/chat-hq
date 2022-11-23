@@ -21,7 +21,7 @@
     "mongoose": "^5.9.28",
     "morgan": "^1.10.0",
     "promisify": "0.0.3",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "eslint": "^7.6.0",
