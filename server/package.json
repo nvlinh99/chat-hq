@@ -18,7 +18,7 @@
     "express-async-handler": "^1.1.4",
     "jsonwebtoken": "^8.5.1",
     "jwt-then": "^1.0.1",
-    "mongoose": "^5.9.28",
+    "mongoose": "^5.13.15",
     "morgan": "^1.10.0",
     "promisify": "0.0.3",
     "socket.io": "^2.3.0"
